@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study Habit Quest</title>
+
+  <style>
+    :root {
+      --navy: #17324d;
+      --blue: #4385f5;
+      --light-blue: #eaf3ff;
+      --green: #26a269;
+      --light-green: #e8f7ef;
+      --orange: #f39c45;
+      --light-orange: #fff3e5;
+      --red: #dc5266;
+      --light-red: #fff0f2;
+      --purple: #7868e6;
+      --background: #f4f7fb;
+      --card: #ffffff;
+      --text: #213043;
+      --muted: #687789;
+      --border: #dce5ef;
+      --shadow: 0 10px 30px rgba(31, 57, 82, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, #dcecff 0, transparent 30%),
+        radial-gradient(circle at bottom right, #e6f8ee 0, transparent 35%),
+        var(--background);
+      font-family: Arial, "Noto Sans KR", sans-serif;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app-shell {
+      width: min(960px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 24px 0 40px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+      padding: 16px 20px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(220, 229, 239, 0.9);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      display: grid;
+      place-items: center;
+      width: 45px;
+      height: 45px;
+      border-radius: 14px;
+      background: var(--navy);
+      color: white;
+      font-size: 24px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      color: var(--navy);
+      font-size: 1.15rem;
+    }
+
+    .brand p {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .timer {
+      min-width: 104px;
+      padding: 10px 14px;
+      color: var(--navy);
+      background: var(--light-blue);
+      border: 1px solid #cfe2ff;
+      border-radius: 14px;
+      text-align: center;
+      font-weight: 800;
+    }
+
+    .timer.warning {
+      color: #9a5b13;
+      background: var(--light-orange);
+      border-color: #ffd9aa;
+    }
+
+    .timer.danger {
+      color: #a7293b;
+      background: var(--light-red);
+      border-color: #ffc7cf;
+    }
+
+    .progress-wrap {
+      margin-bottom: 18px;
+      padding: 14px 18px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 6px 20px rgba(31, 57, 82, 0.06);
+    }
+
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .progress-track {
+      height: 10px;
+      overflow: hidden;
+      background: #e9eef4;
+      border-radius: 999px;
+    }
+
+    .progress-bar {
+      width: 0;
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue), var(--purple));
+      border-radius: inherit;
+      transition: width 0.35s ease;
+    }
+
+    .screen {
+      display: none;
+      padding: clamp(22px, 4vw, 42px);
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .screen.active {
+      display: block;
+      animation: appear 0.35s ease;
+    }
+
+    @keyframes appear {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--blue);
+      font-size: 0.82rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      color: var(--navy);
+      font-size: clamp(1.7rem, 5vw, 2.5rem);
+      line-height: 1.15;
+    }
+
+    .lead {
+      max-width: 680px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.65;
+    }
+
+    .goal-box {
+      margin: 24px 0;
+      padding: 18px;
+      background: var(--light-blue);
+      border-left: 5px solid var(--blue);
+      border-radius: 14px;
+      line-height: 1.65;
+    }
+
+    .name-field {
+      margin: 24px 0;
+    }
+
+    .name-field label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 800;
+    }
+
+    .name-field input,
+    .sentence-input {
+      width: 100%;
+      padding: 14px 16px;
+      color: var(--text);
+      background: white;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      outline: none;
+      transition: 0.2s;
+    }
+
+    .name-field input:focus,
+    .sentence-input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 4px rgba(67, 133, 245, 0.12);
+    }
+
+    .primary-btn,
+    .secondary-btn {
+      min-height: 48px;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-weight: 800;
+      transition: transform 0.15s, opacity 0.15s;
+    }
+
+    .primary-btn {
+      color: white;
+      background: var(--navy);
+      border: 0;
+    }
+
+    .secondary-btn {
+      color: var(--navy);
+      background: white;
+      border: 2px solid var(--border);
+    }
+
+    .primary-btn:hover,
+    .secondary-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .primary-btn:disabled,
+    .secondary-btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+      transform: none;
+    }
+
+    .expression-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin: 24px 0;
+    }
+
+    .expression-card {
+      min-height: 176px;
+      padding: 18px;
+      background: white;
+      border: 2px solid var(--border);
+      border-radius: 17px;
+      transition: 0.2s;
+    }
+
+    .expression-card:hover {
+      border-color: var(--blue);
+      transform: translateY(-2px);
+      box-shadow: 0 7px 20px rgba(67, 133, 245, 0.1);
+    }
+
+    .expression-number {
+      display: inline-grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      margin-bottom: 12px;
+      color: white;
+      background: var(--blue);
+      border-radius: 9px;
+      font-size: 0.8rem;
+      font-weight: 900;
+    }
+
+    .expression-card h3 {
+      margin: 0 0 7px;
+      color: var(--navy);
+      font-size: 1.08rem;
+    }
+
+    .meaning {
+      margin: 0 0 10px;
+      color: var(--green);
+      font-size: 0.9rem;
+      font-weight: 800;
+    }
+
+    .example {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .example strong {
+      color: var(--text);
+    }
+
+    .question-count {
+      margin-bottom: 9px;
+      color: var(--purple);
+      font-size: 0.86rem;
+      font-weight: 900;
+    }
+
+    .question {
+      margin: 0 0 22px;
+      color: var(--navy);
+      font-size: clamp(1.2rem, 3vw, 1.55rem);
+      line-height: 1.5;
+    }
+
+    .blank {
+      display: inline-block;
+      min-width: 120px;
+      margin: 0 3px;
+      border-bottom: 3px solid var(--blue);
+      color: var(--blue);
+      text-align: center;
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .option-btn {
+      min-height: 58px;
+      padding: 14px;
+      color: var(--text);
+      background: white;
+      border: 2px solid var(--border);
+      border-radius: 13px;
+      text-align: left;
+      font-weight: 700;
+      transition: 0.18s;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      color: var(--blue);
+      border-color: var(--blue);
+      background: var(--light-blue);
+    }
+
+    .option-btn.correct {
+      color: #136e44;
+      border-color: var(--green);
+      background: var(--light-green);
+    }
+
+    .option-btn.incorrect {
+      color: #a7293b;
+      border-color: var(--red);
+      background: var(--light-red);
+    }
+
+    .feedback {
+      min-height: 74px;
+      margin-top: 18px;
+      padding: 15px 17px;
+      border-radius: 13px;
+      line-height: 1.55;
+    }
+
+    .feedback:empty {
+      display: none;
+    }
+
+    .feedback.correct {
+      color: #125f3d;
+      background: var(--light-green);
+      border: 1px solid #bde7ce;
+    }
+
+    .feedback.incorrect {
+      color: #932f40;
+      background: var(--light-red);
+      border: 1px solid #ffc8d0;
+    }
+
+    .button-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .word-bank {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin: 20px 0;
+      padding: 16px;
+      background: #f6f8fb;
+      border-radius: 14px;
+    }
+
+    .word-chip {
+      padding: 8px 11px;
+      color: var(--navy);
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 0.84rem;
+      font-weight: 800;
+    }
+
+    .production-item {
+      margin: 18px 0;
+      padding: 18px;
+      background: #fbfcfe;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+    }
+
+    .production-item p {
+      margin: 0 0 10px;
+      font-weight: 700;
+      line-height: 1.55;
+    }
+
+    .input-feedback {
+      min-height: 22px;
+      margin: 8px 0 0;
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+
+    .input-feedback.good {
+      color: var(--green);
+    }
+
+    .input-feedback.try-again {
+      color: var(--red);
+    }
+
+    .result-card {
+      text-align: center;
+    }
+
+    .result-icon {
+      font-size: 4rem;
+    }
+
+    .score-circle {
+      display: grid;
+      place-items: center;
+      width: 145px;
+      height: 145px;
+      margin: 24px auto;
+      color: white;
+      background: linear-gradient(145deg, var(--blue), var(--purple));
+      border: 8px solid #edf2ff;
+      border-radius: 50%;
+      box-shadow: 0 10px 25px rgba(82, 99, 218, 0.25);
+    }
+
+    .score-circle strong {
+      display: block;
+      font-size: 2.1rem;
+    }
+
+    .score-circle span {
+      font-size: 0.8rem;
+      opacity: 0.9;
+    }
+
+    .summary-box {
+      max-width: 590px;
+      margin: 0 auto 22px;
+      padding: 18px;
+      background: #f7f9fc;
+      border-radius: 14px;
+      text-align: left;
+      line-height: 1.65;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+    }
+
+    @media (max-width: 660px) {
+      .app-shell {
+        width: min(100% - 18px, 960px);
+        padding-top: 10px;
+      }
+
+      .topbar {
+        padding: 12px;
+        border-radius: 15px;
+      }
+
+      .brand p {
+        display: none;
+      }
+
+      .timer {
+        min-width: 85px;
+      }
+
+      .screen {
+        padding: 22px 16px;
+        border-radius: 18px;
+      }
+
+      .expression-grid,
+      .options {
+        grid-template-columns: 1fr;
+      }
+
+      .button-row {
+        flex-direction: column-reverse;
+      }
+
+      .button-row button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">📘</div>
+        <div>
+          <h1>Study Habit Quest</h1>
+          <p>Learn six useful expressions in 10 minutes.</p>
+        </div>
+      </div>
+
+      <div id="timer" class="timer" aria-live="polite">10:00</div>
+    </header>
+
+    <section class="progress-wrap" aria-label="Activity progress">
+      <div class="progress-labels">
+        <span id="stageLabel">Ready</span>
+        <span id="progressText">0%</span>
+      </div>
+      <div class="progress-track">
+        <div id="progressBar" class="progress-bar"></div>
+      </div>
+    </section>
+
+    <!-- START SCREEN -->
+    <section id="startScreen" class="screen active">
+      <p class="eyebrow">10-minute individual activity</p>
+      <h2>Build Better Study Habits</h2>
+      <p class="lead">
+        Help Jisu improve her study routine while learning six useful
+        English expressions.
+      </p>
+
+      <div class="goal-box">
+        <strong>Today's goal</strong><br>
+        I can understand and use six expressions about healthy study habits.
+      </div>
+
+      <div class="name-field">
+        <label for="studentName">Your name</label>
+        <input
+          id="studentName"
+          type="text"
+          maxlength="30"
+          placeholder="Type your name"
+          autocomplete="off"
+        >
+      </div>
+
+      <button id="startBtn" class="primary-btn" type="button">
+        Start the Quest →
+      </button>
+    </section>
+
+    <!-- LEARN SCREEN -->
+    <section id="learnScreen" class="screen">
+      <p class="eyebrow">Stage 1 · Learn</p>
+      <h2>Meet the six expressions</h2>
+      <p class="lead">
+        Read each meaning and example. Try saying the expression aloud.
+      </p>
+
+      <div id="expressionGrid" class="expression-grid"></div>
+
+      <div class="button-row">
+        <button id="toQuizBtn" class="primary-btn" type="button">
+          I'm ready for the quiz →
+        </button>
+      </div>
+    </section>
+
+    <!-- QUIZ SCREEN -->
+    <section id="quizScreen" class="screen">
+      <p class="eyebrow">Stage 2 · Choose</p>
+      <div id="questionCount" class="question-count"></div>
+      <h2 id="quizQuestion" class="question"></h2>
+
+      <div
+        id="quizOptions"
+        class="options"
+        role="group"
+        aria-label="Answer choices"
+      ></div>
+
+      <div id="quizFeedback" class="feedback" aria-live="polite"></div>
+
+      <div class="button-row">
+        <button
+          id="nextQuestionBtn"
+          class="primary-btn hidden"
+          type="button"
+        >
+          Next →
+        </button>
+      </div>
+    </section>
+
+    <!-- USE SCREEN -->
+    <section id="useScreen" class="screen">
+      <p class="eyebrow">Stage 3 · Use</p>
+      <h2>Complete Jisu's plan</h2>
+      <p class="lead">
+        Type one target expression in each blank. You may change the verb form
+        if necessary.
+      </p>
+
+      <div class="word-bank" aria-label="Target expressions">
+        <span class="word-chip">keep track of</span>
+        <span class="word-chip">take a break</span>
+        <span class="word-chip">stay away from</span>
+        <span class="word-chip">get enough sleep</span>
+        <span class="word-chip">deal with</span>
+        <span class="word-chip">stick to</span>
+      </div>
+
+      <div id="productionArea"></div>
+
+      <div class="button-row">
+        <button id="checkUseBtn" class="primary-btn" type="button">
+          Check my answers
+        </button>
+        <button id="finishBtn" class="primary-btn hidden" type="button">
+          See my result →
+        </button>
+      </div>
+    </section>
+
+    <!-- RESULT SCREEN -->
+    <section id="resultScreen" class="screen result-card">
+      <div id="resultIcon" class="result-icon" aria-hidden="true">🌟</div>
+      <p class="eyebrow">Quest complete</p>
+      <h2 id="resultTitle">Great work!</h2>
+      <p id="resultMessage" class="lead" style="margin-inline: auto;"></p>
+
+      <div class="score-circle">
+        <div>
+          <strong id="finalScore">0/10</strong>
+          <span>TOTAL SCORE</span>
+        </div>
+      </div>
+
+      <div id="resultSummary" class="summary-box"></div>
+
+      <button id="restartBtn" class="secondary-btn" type="button">
+        Try again
+      </button>
+    </section>
+  </main>
+
+  <script>
+    const expressions = [
+      {
+        phrase: "keep track of",
+        meaning: "계속 확인하고 기록하다",
+        example: "I use a planner to keep track of my homework."
+      },
+      {
+        phrase: "take a break",
+        meaning: "잠깐 쉬다",
+        example: "Take a short break after studying for 30 minutes."
+      },
+      {
+        phrase: "stay away from",
+        meaning: "~을 멀리하다, 피하다",
+        example: "Stay away from your phone while you study."
+      },
+      {
+        phrase: "get enough sleep",
+        meaning: "충분한 수면을 취하다",
+        example: "Students need to get enough sleep every night."
+      },
+      {
+        phrase: "deal with",
+        meaning: "~을 처리하다, 대처하다",
+        example: "Make a plan to deal with difficult homework."
+      },
+      {
+        phrase: "stick to",
+        meaning: "~을 계속 지키다",
+        example: "Choose a simple schedule and stick to it."
+      }
+    ];
+
+    const quizQuestions = [
+      {
+        sentence:
+          "Jisu writes every assignment in her planner to _____ her homework.",
+        answer: "keep track of",
+        options: [
+          "keep track of",
+          "take a break",
+          "deal with",
+          "stay away from"
+        ],
+        explanation:
+          "\"Keep track of\" means to continue checking or recording something."
+      },
+      {
+        sentence:
+          "After studying for 40 minutes, Jisu should _____ for five minutes.",
+        answer: "take a break",
+        options: [
+          "stick to",
+          "take a break",
+          "get enough sleep",
+          "keep track of"
+        ],
+        explanation:
+          "\"Take a break\" means to stop an activity briefly and rest."
+      },
+      {
+        sentence:
+          "Jisu puts her phone in another room to _____ social media.",
+        answer: "stay away from",
+        options: [
+          "deal with",
+          "stick to",
+          "stay away from",
+          "take a break"
+        ],
+        explanation:
+          "\"Stay away from\" means to avoid or not go near something."
+      },
+      {
+        sentence:
+          "Jisu goes to bed at 10:30 because she wants to _____.",
+        answer: "get enough sleep",
+        options: [
+          "get enough sleep",
+          "keep track of",
+          "stick to",
+          "deal with"
+        ],
+        explanation:
+          "\"Get enough sleep\" means to sleep as much as your body needs."
+      },
+      {
+        sentence:
+          "When Jisu has a difficult task, she divides it into smaller parts to _____ it.",
+        answer: "deal with",
+        options: [
+          "stay away from",
+          "take a break",
+          "deal with",
+          "get enough sleep"
+        ],
+        explanation:
+          "\"Deal with\" means to take action to handle a problem or situation."
+      },
+      {
+        sentence:
+          "Jisu makes a realistic study plan and tries to _____ it every day.",
+        answer: "stick to",
+        options: [
+          "keep track of",
+          "stick to",
+          "take a break",
+          "stay away from"
+        ],
+        explanation:
+          "\"Stick to\" means to continue following a plan or decision."
+      }
+    ];
+
+    const productionQuestions = [
+      {
+        prompt:
+          "1. I write my tasks in a notebook to __________ my homework.",
+        answers: ["keep track of"]
+      },
+      {
+        prompt:
+          "2. When I feel tired, I __________ for five minutes.",
+        answers: ["take a break"]
+      },
+      {
+        prompt:
+          "3. I put my phone away to __________ distractions.",
+        answers: ["stay away from"]
+      },
+      {
+        prompt:
+          "4. I try to go to bed early and __________.",
+        answers: ["get enough sleep"]
+      }
+    ];
+
+    const screens = {
+      start: document.getElementById("startScreen"),
+      learn: document.getElementById("learnScreen"),
+      quiz: document.getElementById("quizScreen"),
+      use: document.getElementById("useScreen"),
+      result: document.getElementById("resultScreen")
+    };
+
+    const timerElement = document.getElementById("timer");
+    const stageLabel = document.getElementById("stageLabel");
+    const progressText = document.getElementById("progressText");
+    const progressBar = document.getElementById("progressBar");
+
+    let studentName = "";
+    let quizIndex = 0;
+    let quizScore = 0;
+    let productionScore = 0;
+    let hasAnsweredCurrentQuestion = false;
+    let secondsLeft = 600;
+    let timerInterval = null;
+    let activityFinished = false;
+
+    function normalizeAnswer(value) {
+      return value
+        .trim()
+        .toLowerCase()
+        .replace(/[.,!?]/g, "")
+        .replace(/\s+/g, " ");
+    }
+
+    function showScreen(screenName) {
+      Object.values(screens).forEach((screen) => {
+        screen.classList.remove("active");
+      });
+
+      screens[screenName].classList.add("active");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function updateProgress(percent, label) {
+      progressBar.style.width = percent + "%";
+      progressText.textContent = percent + "%";
+      stageLabel.textContent = label;
+    }
+
+    function renderExpressionCards() {
+      const grid = document.getElementById("expressionGrid");
+
+      grid.innerHTML = expressions
+        .map(
+          (item, index) => `
+            <article class="expression-card">
+              <span class="expression-number">${index + 1}</span>
+              <h3>${item.phrase}</h3>
+              <p class="meaning">${item.meaning}</p>
+              <p class="example">
+                <strong>Example:</strong> ${item.example}
+              </p>
+            </article>
+          `
+        )
+        .join("");
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+
+      timerInterval = setInterval(() => {
+        if (activityFinished) {
+          clearInterval(timerInterval);
+          return;
+        }
+
+        secondsLeft--;
+
+        if (secondsLeft <= 0) {
+          secondsLeft = 0;
+          updateTimerDisplay();
+          clearInterval(timerInterval);
+          finishActivity(true);
+          return;
+        }
+
+        updateTimerDisplay();
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      const minutes = Math.floor(secondsLeft / 60);
+      const seconds = secondsLeft % 60;
+
+      timerElement.textContent =
+        String(minutes).padStart(2, "0") +
+        ":" +
+        String(seconds).padStart(2, "0");
+
+      timerElement.classList.toggle(
+        "warning",
+        secondsLeft <= 180 && secondsLeft > 60
+      );
+
+      timerElement.classList.toggle("danger", secondsLeft <= 60);
+    }
+
+    function renderQuizQuestion() {
+      hasAnsweredCurrentQuestion = false;
+
+      const question = quizQuestions[quizIndex];
+      const questionCount = document.getElementById("questionCount");
+      const questionElement = document.getElementById("quizQuestion");
+      const optionsElement = document.getElementById("quizOptions");
+      const feedbackElement = document.getElementById("quizFeedback");
+      const nextButton = document.getElementById("nextQuestionBtn");
+
+      questionCount.textContent =
+        `Question ${quizIndex + 1} of ${quizQuestions.length}`;
+
+      questionElement.innerHTML = question.sentence.replace(
+        "_____",
+        '<span class="blank">?</span>'
+      );
+
+      optionsElement.innerHTML = "";
+      feedbackElement.textContent = "";
+      feedbackElement.className = "feedback";
+      nextButton.classList.add("hidden");
+
+      question.options.forEach((option) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "option-btn";
+        button.textContent = option;
+
+        button.addEventListener("click", () => {
+          checkQuizAnswer(option, button);
+        });
+
+        optionsElement.appendChild(button);
+      });
+
+      const progress = 35 + Math.round((quizIndex / quizQuestions.length) * 35);
+      updateProgress(progress, "Stage 2 · Choose");
+    }
+
+    function checkQuizAnswer(selectedOption, selectedButton) {
+      if (hasAnsweredCurrentQuestion) {
+        return;
+      }
+
+      hasAnsweredCurrentQuestion = true;
+
+      const question = quizQuestions[quizIndex];
+      const buttons = document.querySelectorAll("#quizOptions .option-btn");
+      const feedbackElement = document.getElementById("quizFeedback");
+      const nextButton = document.getElementById("nextQuestionBtn");
+
+      buttons.forEach((button) => {
+        button.disabled = true;
+
+        if (button.textContent === question.answer) {
+          button.classList.add("correct");
+        }
+      });
+
+      if (selectedOption === question.answer) {
+        quizScore++;
+        feedbackElement.className = "feedback correct";
+        feedbackElement.innerHTML =
+          `<strong>Correct!</strong> ${question.explanation}`;
+      } else {
+        selectedButton.classList.add("incorrect");
+        feedbackElement.className = "feedback incorrect";
+        feedbackElement.innerHTML =
+          `<strong>Not quite.</strong> The answer is ` +
+          `<strong>${question.answer}</strong>. ${question.explanation}`;
+      }
+
+      nextButton.textContent =
+        quizIndex === quizQuestions.length - 1
+          ? "Go to Stage 3 →"
+          : "Next →";
+
+      nextButton.classList.remove("hidden");
+    }
+
+    function renderProductionQuestions() {
+      const productionArea = document.getElementById("productionArea");
+
+      productionArea.innerHTML = productionQuestions
+        .map(
+          (item, index) => `
+            <div class="production-item">
+              <label for="answer${index}">
+                <p>${item.prompt}</p>
+              </label>
+              <input
+                id="answer${index}"
+                class="sentence-input"
+                type="text"
+                autocomplete="off"
+                placeholder="Type the target expression"
+              >
+              <p
+                id="inputFeedback${index}"
+                class="input-feedback"
+                aria-live="polite"
+              ></p>
+            </div>
+          `
+        )
+        .join("");
+    }
+
+    function checkProductionAnswers() {
+      productionScore = 0;
+      let completedCount = 0;
+
+      productionQuestions.forEach((item, index) => {
+        const input = document.getElementById(`answer${index}`);
+        const feedback = document.getElementById(`inputFeedback${index}`);
+        const userAnswer = normalizeAnswer(input.value);
+
+        if (userAnswer) {
+          completedCount++;
+        }
+
+        const isCorrect = item.answers.some(
+          (answer) => normalizeAnswer(answer) === userAnswer
+        );
+
+        if (isCorrect) {
+          productionScore++;
+          input.style.borderColor = "var(--green)";
+          feedback.className = "input-feedback good";
+          feedback.textContent = "✓ Good job!";
+        } else {
+          input.style.borderColor = "var(--red)";
+          feedback.className = "input-feedback try-again";
+
+          if (!userAnswer) {
+            feedback.textContent = "Please type an answer.";
+          } else {
+            feedback.textContent = `Try again. Hint: ${item.answers[0]}`;
+          }
+        }
+      });
+
+      if (completedCount === productionQuestions.length) {
+        document.getElementById("finishBtn").classList.remove("hidden");
+      }
+
+      updateProgress(90, "Stage 3 · Use");
+    }
+
+    function finishActivity(timeEnded = false) {
+      if (activityFinished) {
+        return;
+      }
+
+      activityFinished = true;
+      clearInterval(timerInterval);
+
+      const totalScore = quizScore + productionScore;
+      const maximumScore =
+        quizQuestions.length + productionQuestions.length;
+
+      const resultTitle = document.getElementById("resultTitle");
+      const resultMessage = document.getElementById("resultMessage");
+      const resultIcon = document.getElementById("resultIcon");
+      const finalScore = document.getElementById("finalScore");
+      const resultSummary = document.getElementById("resultSummary");
+
+      finalScore.textContent = `${totalScore}/${maximumScore}`;
+
+      if (totalScore >= 9) {
+        resultIcon.textContent = "🏆";
+        resultTitle.textContent = "Excellent work!";
+        resultMessage.textContent =
+          `${studentName}, you can understand and use the expressions very well.`;
+      } else if (totalScore >= 7) {
+        resultIcon.textContent = "🌟";
+        resultTitle.textContent = "Great job!";
+        resultMessage.textContent =
+          `${studentName}, you understand most of the target expressions.`;
+      } else if (totalScore >= 5) {
+        resultIcon.textContent = "👍";
+        resultTitle.textContent = "Good effort!";
+        resultMessage.textContent =
+          `${studentName}, review the examples once more and try again.`;
+      } else {
+        resultIcon.textContent = "🌱";
+        resultTitle.textContent = "Keep growing!";
+        resultMessage.textContent =
+          `${studentName}, practice the expressions again at your own pace.`;
+      }
+
+      const timeMessage = timeEnded
+        ? "<p><strong>Time:</strong> The 10-minute activity has ended.</p>"
+        : `<p><strong>Time used:</strong> ${formatTimeUsed()}</p>`;
+
+      resultSummary.innerHTML = `
+        <p><strong>Choose section:</strong>
+          ${quizScore}/${quizQuestions.length}
+        </p>
+        <p><strong>Use section:</strong>
+          ${productionScore}/${productionQuestions.length}
+        </p>
+        ${timeMessage}
+        <p>
+          <strong>Remember:</strong> Good study habits are small actions
+          that you repeat every day.
+        </p>
+      `;
+
+      showScreen("result");
+      updateProgress(100, "Complete");
+    }
+
+    function formatTimeUsed() {
+      const usedSeconds = 600 - secondsLeft;
+      const minutes = Math.floor(usedSeconds / 60);
+      const seconds = usedSeconds % 60;
+
+      return `${minutes} min ${seconds} sec`;
+    }
+
+    function resetActivity() {
+      studentName = "";
+      quizIndex = 0;
+      quizScore = 0;
+      productionScore = 0;
+      hasAnsweredCurrentQuestion = false;
+      secondsLeft = 600;
+      activityFinished = false;
+
+      clearInterval(timerInterval);
+
+      document.getElementById("studentName").value = "";
+      document.getElementById("finishBtn").classList.add("hidden");
+
+      renderProductionQuestions();
+      updateTimerDisplay();
+      updateProgress(0, "Ready");
+      showScreen("start");
+    }
+
+    document.getElementById("startBtn").addEventListener("click", () => {
+      const nameInput = document.getElementById("studentName");
+      studentName = nameInput.value.trim() || "Student";
+
+      showScreen("learn");
+      updateProgress(15, "Stage 1 · Learn");
+      startTimer();
+    });
+
+    document.getElementById("studentName").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        document.getElementById("startBtn").click();
+      }
+    });
+
+    document.getElementById("toQuizBtn").addEventListener("click", () => {
+      quizIndex = 0;
+      showScreen("quiz");
+      renderQuizQuestion();
+    });
+
+    document
+      .getElementById("nextQuestionBtn")
+      .addEventListener("click", () => {
+        if (quizIndex < quizQuestions.length - 1) {
+          quizIndex++;
+          renderQuizQuestion();
+        } else {
+          showScreen("use");
+          updateProgress(75, "Stage 3 · Use");
+        }
+      });
+
+    document
+      .getElementById("checkUseBtn")
+      .addEventListener("click", checkProductionAnswers);
+
+    document.getElementById("finishBtn").addEventListener("click", () => {
+      checkProductionAnswers();
+      finishActivity(false);
+    });
+
+    document.getElementById("restartBtn").addEventListener("click", resetActivity);
+
+    renderExpressionCards();
+    renderProductionQuestions();
+    updateTimerDisplay();
+  </script>
+</body>
+</html>
